@@ -19,13 +19,24 @@ const CharList = (props) => {
       onReqest()
    }, [])
 
+   useEffect(() => {
+      window.addEventListener('scroll', onScroll)
+      return () => window.removeEventListener('scroll', onScroll)
+   })
+
+   const onScroll = () => {
+      if (window.scrollY + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+         onReqest(offset)
+      }
+   }
+
    const onReqest = (offset) => {
       onCharListLoading()
       marvelServise.getAllCharacters(offset).then(onLoadedCharacters).catch(onError)
    }
 
    const onCharListLoading = () => {
-      setNewItemLoading(false)
+      setNewItemLoading((newItemLoading) => !newItemLoading)
    }
 
    const onLoadedCharacters = (data) => {
