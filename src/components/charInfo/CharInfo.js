@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import ErrorMessage from '../errorMessage/errorMessage'
@@ -7,73 +7,55 @@ import MarvelService from '../../services/MarvelService'
 import Skeleton from '../skeleton/Skeleton'
 import './charInfo.scss'
 
-class CharInfo extends Component {
-   state = {
-      char: null,
-      loading: false,
-      error: false,
-   }
+const CharInfo = (props) => {
+   const [char, setChar] = useState(null)
+   const [loading, setLoading] = useState(false)
+   const [error, setError] = useState(false)
 
-   marvelServise = new MarvelService()
+   const marvelServise = new MarvelService()
 
-   componentDidMount() {
-      this.updateChar()
-   }
+   useEffect(() => {
+      updateChar()
+   }, [props.charId])
 
-   componentDidUpdate(prevProps) {
-      if (this.props.charId !== prevProps.charId) {
-         this.updateChar()
-      }
-   }
-
-   updateChar = () => {
-      const { charId } = this.props
+   const updateChar = () => {
+      const { charId } = props
       if (!charId) {
          return
       }
 
-      this.onCharLoading()
-      this.marvelServise.getCharacter(charId).then(this.onCharLoaded).catch(this.onError)
+      onCharLoading()
+      marvelServise.getCharacter(charId).then(onCharLoaded).catch(onError)
    }
 
-   onCharLoading = () => {
-      this.setState({
-         loading: true,
-         error: false,
-      })
+   const onCharLoading = () => {
+      setLoading(true)
+      setError(false)
    }
 
-   onCharLoaded = (char) => {
-      this.setState({
-         char,
-         loading: false,
-         error: false,
-      })
+   const onCharLoaded = (char) => {
+      setChar(char)
+      setLoading(false)
+      setError(false)
    }
 
-   onError = () => {
-      this.setState({
-         loading: false,
-         error: true,
-      })
+   const onError = () => {
+      setLoading(false)
+      setError(true)
    }
 
-   render() {
-      const { char, loading, error } = this.state
-
-      if (!this.props.charId) {
-         return (
-            <div className="char__info">
-               <Skeleton />
-            </div>
-         )
-      } else {
-         return (
-            <div className="char__info">
-               {loading ? <Spinner /> : error ? <ErrorMessage /> : char ? <View char={char} /> : null}
-            </div>
-         )
-      }
+   if (!props.charId) {
+      return (
+         <div className="char__info">
+            <Skeleton />
+         </div>
+      )
+   } else {
+      return (
+         <div className="char__info">
+            {loading ? <Spinner /> : error ? <ErrorMessage /> : char ? <View char={char} /> : null}
+         </div>
+      )
    }
 }
 
@@ -132,8 +114,8 @@ const View = ({ char }) => {
    )
 }
 
-// CharInfo.propTypes = {
-//    charId: PropTypes.number.isRequired,
-// }
+CharInfo.propTypes = {
+   charId: PropTypes.number,
+}
 
 export default CharInfo
