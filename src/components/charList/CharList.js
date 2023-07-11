@@ -1,22 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import MarvelService from '../../services/MarvelService'
+import useMarvelService from '../../services/MarvelService'
 import Spinner from '../../spinner/Spinner'
 import ErrorMessage from '../errorMessage/errorMessage'
 import './charList.scss'
 
 const CharList = (props) => {
    const [charList, setCharList] = useState([])
-   const [loading, setLoading] = useState(true)
-   const [error, setError] = useState(false)
    const [newItemLoading, setNewItemLoading] = useState(false)
    const [offset, setOffset] = useState(350)
    const [charEnded, setCharEnded] = useState(false)
 
-   const marvelServise = new MarvelService()
+   const { loading, error, getAllCharacters } = useMarvelService()
 
    useEffect(() => {
-      onReqest()
+      onRequest(offset, true)
    }, [])
 
    useEffect(() => {
@@ -26,17 +24,13 @@ const CharList = (props) => {
 
    const onScroll = () => {
       if (window.scrollY + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
-         onReqest(offset)
+         onRequest(offset)
       }
    }
 
-   const onReqest = (offset) => {
-      onCharListLoading()
-      marvelServise.getAllCharacters(offset).then(onLoadedCharacters).catch(onError)
-   }
-
-   const onCharListLoading = () => {
-      setNewItemLoading((newItemLoading) => !newItemLoading)
+   const onRequest = (offset, initialRequest) => {
+      initialRequest ? setNewItemLoading(false) : setNewItemLoading(true)
+      getAllCharacters(offset).then(onLoadedCharacters)
    }
 
    const onLoadedCharacters = (data) => {
@@ -46,15 +40,10 @@ const CharList = (props) => {
       }
 
       setCharList((charList) => [...charList, ...data])
-      setLoading(false)
-      setError(false)
+
       setNewItemLoading(false)
       setOffset((offset) => offset + 9)
       setCharEnded(ended)
-   }
-   const onError = () => {
-      setError(true)
-      setLoading(false)
    }
 
    const myRefs = useRef([])
@@ -100,10 +89,10 @@ const CharList = (props) => {
 
    return (
       <div className="char__list">
-         {loading ? <Spinner /> : error ? <ErrorMessage /> : renderItems(charList)}
+         {loading && !newItemLoading ? <Spinner /> : error ? <ErrorMessage /> : renderItems(charList)}
          <button
             disabled={newItemLoading}
-            onClick={() => onReqest(offset)}
+            onClick={() => onRequest(offset)}
             className="button button__main button__long"
             style={{ display: charEnded ? 'none' : 'block' }}
          >
