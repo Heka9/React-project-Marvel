@@ -6,7 +6,7 @@ import './randomChar.scss'
 import mjolnir from '../../resources/img/mjolnir.png'
 
 const RandomChar = () => {
-   const [char, setChar] = useState(null)
+   const [char, setChar] = useState({})
 
    const { loading, error, getCharacter, clearError } = useMarvelService()
 
@@ -51,8 +51,8 @@ const RandomChar = () => {
 
 function View({ char }) {
    const { name, description, thumbnail, homepage, wiki } = char
-   let classes
 
+   let classes
    if (thumbnail) {
       classes = thumbnail.includes('image_not_available')
          ? 'randomchar__img randomchar__img_contain'
