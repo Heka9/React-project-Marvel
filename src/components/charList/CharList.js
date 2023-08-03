@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import useMarvelService from '../../services/MarvelService'
-import Spinner from '../../spinner/Spinner'
+import Spinner from '../spinner/Spinner'
 import ErrorMessage from '../errorMessage/errorMessage'
 import './charList.scss'
 
@@ -22,9 +22,15 @@ const CharList = (props) => {
       return () => window.removeEventListener('scroll', onScroll)
    })
 
+   const debounce = (fn, ms) => {
+      return function () {
+         setTimeout(() => fn.apply(this, arguments), ms)
+      }
+   }
+
    const onScroll = () => {
       if (window.scrollY + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
-         onRequest(offset)
+         debounce(onRequest(offset), 300)
       }
    }
 

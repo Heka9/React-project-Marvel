@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import ErrorMessage from '../errorMessage/errorMessage'
-import Spinner from '../../spinner/Spinner'
+import Spinner from '../spinner/Spinner'
 import useMarvelService from '../../services/MarvelService'
 import Skeleton from '../skeleton/Skeleton'
 import './charInfo.scss'
