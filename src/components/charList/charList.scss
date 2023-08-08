@@ -22,6 +22,23 @@
 		padding: 15px;
 		cursor: pointer;
 		transition: 0.3s transform;
+		&-enter {
+			transform: scale(0);
+		}
+		&-enter-active {
+			transform: scale(1);
+			transition: transform 400ms;
+		}
+		&-exit {
+			transform: scale(1);
+		}
+		&-exit-active {
+			transform: scale(0);
+			transition: transform 400ms;
+		}
+		&-enter-done {
+			transform: scale(1);
+		}
 		img {
 			width: 200px;
 			height: 200px;
