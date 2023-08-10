@@ -1,11 +1,32 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { CSSTransition, TransitionGroup } from 'react-transition-group'
+
 import useMarvelService from '../../services/MarvelService'
 import Spinner from '../spinner/Spinner'
 import ErrorMessage from '../errorMessage/errorMessage'
 
 import './comicsList.scss'
-import { CSSTransition, TransitionGroup } from 'react-transition-group'
+
+const setContent = (process, Component, newItemLoading) => {
+   switch (process) {
+      case 'waiting':
+         return <Spinner />
+         break
+      case 'loading':
+         return newItemLoading ? <Component /> : <Spinner />
+         break
+      case 'confirmed':
+         return <Component />
+         break
+      case 'error':
+         return <ErrorMessage />
+         break
+      default:
+         throw new Error('Unexpected process state')
+         break
+   }
+}
 
 const ComicsList = () => {
    const [comicsList, setComicsList] = useState([])
@@ -13,7 +34,7 @@ const ComicsList = () => {
    const [offset, setOffset] = useState(0)
    const [comicsEnded, setComicsEnded] = useState(false)
 
-   const { loading, error, getAllComics } = useMarvelService()
+   const { loading, error, getAllComics, process, setProcess } = useMarvelService()
 
    const duration = 400
 
@@ -28,7 +49,9 @@ const ComicsList = () => {
 
    const onRequest = (offset, initial) => {
       initial ? setnewItemLoading(false) : setnewItemLoading(true)
-      getAllComics(offset).then(onComicsListLoaded)
+      getAllComics(offset)
+         .then(onComicsListLoaded)
+         .then(() => setProcess('confirmed'))
    }
 
    const debounce = (fn, ms) => {
@@ -70,16 +93,9 @@ const ComicsList = () => {
       return <TransitionGroup className="comics__grid">{items}</TransitionGroup>
    }
 
-   const items = renderItems(comicsList)
-
-   const errorMessage = error ? <ErrorMessage /> : null
-   const spinner = loading && !newItemLoading ? <Spinner /> : null
-
    return (
       <div className="comics__list">
-         {errorMessage}
-         {spinner}
-         {items}
+         {setContent(process, () => renderItems(comicsList), newItemLoading)}
          <button
             disabled={newItemLoading}
             style={{ display: comicsEnded ? 'none' : 'block' }}
